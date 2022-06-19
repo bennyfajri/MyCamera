@@ -73,7 +73,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startGallery() {
-        Toast.makeText(this, "Fitur ini belum tersedia", Toast.LENGTH_SHORT).show()
+        Intent().apply {
+            action = Intent.ACTION_GET_CONTENT
+            type = "image/*"
+            val chooser = Intent.createChooser(this, "Choose a Picture")
+            launcherIntentGallery.launch(chooser)
+        }
     }
 
     private fun startTakePhoto() {
@@ -88,7 +93,7 @@ class MainActivity : AppCompatActivity() {
                 )
                 currentPhotoPath = it.absolutePath
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
-                launchIntentCamera.launch(intent)
+                launcherIntentCamera.launch(intent)
             }
         }
     }
@@ -116,7 +121,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private lateinit var currentPhotoPath: String
-    private val launchIntentCamera = registerForActivityResult(
+    private val launcherIntentCamera = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ){
         if(it.resultCode == RESULT_OK) {
@@ -130,6 +135,16 @@ class MainActivity : AppCompatActivity() {
 //            )
 
             binding.previewImageView.setImageBitmap(result)
+        }
+    }
+
+    private val launcherIntentGallery = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if(result.resultCode == RESULT_OK){
+            val selectedImg: Uri = result.data?.data as Uri
+            val myFile = uriToFile(selectedImg, this@MainActivity)
+            binding.previewImageView.setImageURI(selectedImg)
         }
     }
 }
